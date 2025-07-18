@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cozy Corner Cafe</title>
+    <!-- Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for background images and smooth transitions */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f8f8; /* Light background for overall page */
+            color: #333;
+            transition: background-image 0.5s ease-in-out; /* Smooth background transition */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Keeps background fixed during scroll */
+        }
+
+        .page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white overlay */
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #F97316; /* Orange-500 */
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+
+        .menu-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .buy-button {
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .buy-button:active {
+            transform: translateY(1px);
+        }
+
+        /* Background images for pages */
+        .bg-home {
+            background-image: url('https://placehold.co/1920x1080/FDBA74/FFFFFF?text=Cozy+Cafe+Interior');
+        }
+        .bg-menu {
+            background-image: url('https://placehold.co/1920x1080/FECACA/FFFFFF?text=Delicious+Food+Spread');
+        }
+        .bg-about {
+            background-image: url('https://placehold.co/1920x1080/BFDBFE/FFFFFF?text=Friendly+Barista');
+        }
+        .bg-contact {
+            background-image: url('https://placehold.co/1920x1080/D1FAE5/FFFFFF?text=Cafe+Exterior');
+        }
+
+        /* Message box styling */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .message-box.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        
+        
+
+    </style>
+</head>
+<body class="bg-home">
+    <div class="page-container">
+        <!-- Navigation Bar -->
+        <nav class="bg-white shadow-md py-4">
+            <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+                <a href="#" class="text-3xl font-bold text-orange-600 mb-4 md:mb-0">The Cozy Corner</a>
+                <ul class="flex space-x-6">
+                    <li><a href="#home" class="nav-link text-lg font-medium text-gray-700 hover:text-orange-500 active" data-page="home">Home</a></li>
+                    <li><a href="#menu" class="nav-link text-lg font-medium text-gray-700 hover:text-orange-500" data-page="menu">Menu</a></li>
+                    <li><a href="#about" class="nav-link text-lg font-medium text-gray-700 hover:text-orange-500" data-page="about">About</a></li>
+                    <li><a href="#contact" class="nav-link text-lg font-medium text-gray-700 hover:text-orange-500" data-page="contact">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main id="page-content" class="flex-grow container mx-auto px-4 py-8">
+            <!-- Content will be loaded here by JavaScript -->
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-6 mt-auto">
+            <div class="container mx-auto px-4 text-center">
+                <p>&copy; 2025 The Cozy Corner Cafe. All rights reserved.</p>
+                <div class="flex justify-center space-x-4 mt-2">
+                    <a href="#" class="text-gray-400 hover:text-white">Facebook</a>
+                    <a href="#" class="text-gray-400 hover:text-white">Instagram</a>
+                    <a href="#" class="text-gray-400 hover:text-white">Twitter</a>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Message Box for "Buy" confirmations -->
+        <div id="message-box" class="message-box"></div>
+    </div>
+
+    <script>
+        // Data for menu items
+        const menuItems = [
+            { id: 1, name: "Masala Dosa", description: "Crispy crepe filled with spiced potato masala.", price: 80.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.6Nx_C1m4YCujBiHe48YpHAHaE8%3Fpid%3DApi&f=1&ipt=6179d22b8a6384c390ed3901046d97215931828feb3097d3e12dfa7838b534b9&ipo=images" },
+            { id: 2, name: "Idli Sambar", description: "Soft steamed rice cakes served with lentil stew.", price: 60.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.awesomecuisine.com%2Fwp-content%2Fuploads%2F2008%2F02%2Fidli_sambar.jpg&f=1&nofb=1&ipt=027df65c50630972cdff3435dd16c263d8939caed51cf648ea90e5452f7f95cd" },
+            { id: 3, name: "Appam with Stew", description: "Lacy, fluffy rice pancakes with vegetable or chicken stew.", price: 190.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.pinimg.com%2Foriginals%2Fb1%2F82%2F3b%2Fb1823bb14d1ab27b104dc3d024985b86.jpg&f=1&nofb=1&ipt=a611a0e4d232670bdedf5f3cf0e743434f904174ac9982c28802962f8d689e80" },
+            { id: 4, name: "Kerala Parotta", description: "Layered, flaky flatbread, a staple of Kerala cuisine. ", price: 15.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fas2.ftcdn.net%2Fv2%2Fjpg%2F03%2F22%2F27%2F43%2F1000_F_322274314_MEln9YzXVGc35pXYz4hqkFzJzvGMgmvt.jpg&f=1&nofb=1&ipt=e026c0959622252802cbab945ed7f5d45082792b147bd0a8865fb8895db97851" },
+            { id: 5, name: "Fish Curry (Kerala Style)", description: "Spicy and tangy fish curry cooked in coconut milk.", price: 180.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fvismaifood.com%2Fstorage%2Fapp%2Fuploads%2Fpublic%2Fdaa%2F96d%2F7bc%2Fthumb__1200_0_0_0_auto.jpg&f=1&nofb=1&ipt=75376d605bd7e6dc8eeac3f4270c9a1f73c9dace5eaef10e7308980ef48a46d0" },
+            { id: 6, name: "Chicken Biryani", description: "Fragrant basmati rice cooked with marinated chicken and spices.", price: 200.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwallpaperaccess.com%2Ffull%2F1972917.jpg&f=1&nofb=1&ipt=38385850e1b912f5b39ab840b41be8d0b98ccf7864a46c731a299ff96fe16be9" },
+            { id: 7, name: "Vegetable Curry", description: "Mixed vegetables cooked in a rich, aromatic gravy.", price: 80.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.indianhealthyrecipes.com%2Fwp-content%2Fuploads%2F2022%2F03%2Fveg-kurma-vegetable-korma-recipe.jpg&f=1&nofb=1&ipt=f38ad9ca4478b2e85e8d2fafd27076ca2b08d4848cb2ad72f2cdc283905ef8b8" },
+            { id: 8, name: "Puttu & Kadala Curry", description: "Steamed rice cakes with black chickpea curry.", price: 120.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimage.shutterstock.com%2Fimage-photo%2Fputtu-kadala-curry-pittu-chana-260nw-1769404556.jpg&f=1&nofb=1&ipt=5f7dad8f272a2c3243d70cbf1c9cc1b5954e6b6c8a2e1e901af1efb5b5338f0e" },
+            { id: 9, name: "Gobi Manchurian", description: "Crispy fried cauliflower florets tossed in a spicy, tangy sauce.", price: 260.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn.tasteatlas.com%2Fimages%2Fdishes%2Fcba6279ae21445539df7e5f35b063bcb.jpg&f=1&nofb=1&ipt=34ce58a6936bd837c701a4cd57309d8195c469afe56178acb10b045b366a17fc" },
+            { id: 10, name: "Paneer Butter Masala", description: "Cottage cheese cubes in a creamy tomato and butter gravy.", price: 270.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimg.freepik.com%2Fpremium-photo%2Fdelicious-paneer-butter-masala-photography_928503-851.jpg%3Fw%3D2000&f=1&nofb=1&ipt=249cf1848087b014337c7845595b9440b3a269b2c8bd87f81736e85315ac31cd" },
+            { id: 11, name: "Tea (Chai)", description: "Traditional Indian spiced milk tea.", price: 20.0, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmasalaandchai.com%2Fwp-content%2Fuploads%2F2022%2F04%2FGinger-Tea.jpg&f=1&nofb=1&ipt=9571686f756fb692522d600ff753a4b055a4a86cf45125bfa37d37b65e6f3820" },
+            { id: 12, name: "Filter Coffee", description: "Strong South Indian filter coffee.", price: 40.80, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fstatic.vecteezy.com%2Fsystem%2Fresources%2Fpreviews%2F013%2F754%2F273%2Flarge_2x%2Fsouth-indian-filter-coffee-served-in-a-traditional-brass-or-stainless-steel-cup-free-photo.jpg&f=1&nofb=1&ipt=17e46d3bb5985670498157da91250fcd1ebaf4d4117cf92422d5ea5d8dcf5905" },
+            { id: 13, name: "Gulab Jamun", description: "Deep-fried milk solids soaked in sweet syrup.", price: 150.50, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2F1.bp.blogspot.com%2F-YGBSprsgs1c%2FXdDVy-pGurI%2FAAAAAAAAX64%2FuN_6FF2b6BIYgI2tzz3DXlWNvdlY_jZ_QCLcBGAsYHQ%2Fs1600%2Fgulab%252Bjamun%252B9.JPG&f=1&nofb=1&ipt=e038201e34d25d16c1f4b526db7d22cea2ef9b04d75251d9e16da000e6c92323" },
+            { id: 14, name: "Payasam", description: "Traditional Kerala rice pudding, sweet and creamy.", price: 180.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fassets.zeezest.com%2Fblogs%2FPROD_Id-880-Palada-Pradhaman-banner_1615463008930.jpg&f=1&nofb=1&ipt=e695e16cd210f0e310dc0d6669a4c0a21675c3e2c44e477bab249e6eb3c63ed8" },
+            { id: 15, name: "Samosa", description: "Crispy fried pastry with savory spiced potato filling.", price: 20.00, image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimg.thrfun.com%2Fimg%2F200%2F930%2Fsamosas_x7.jpg&f=1&nofb=1&ipt=a6232a8aefbb171fce711dd72fe66678850117f4039c4a9831b2678e251a022d" }
+        ];
+
+        const pageContentDiv = document.getElementById('page-content');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const body = document.body;
+        const messageBox = document.getElementById('message-box');
+
+        // Function to show a temporary message
+        function showMessage(message, type = 'success') {
+            messageBox.textContent = message;
+            messageBox.className = 'message-box show'; // Reset classes and show
+            if (type === 'success') {
+                messageBox.style.backgroundColor = '#4CAF50'; // Green
+            } else if (type === 'error') {
+                messageBox.style.backgroundColor = '#f44336'; // Red
+            } else {
+                messageBox.style.backgroundColor = '#2196F3'; // Blue (info)
+            }
+
+            setTimeout(() => {
+                messageBox.className = 'message-box'; // Hide
+            }, 3000); // Message disappears after 3 seconds
+        }
+
+        // Function to handle "Buy" button click
+        function handleBuyClick(itemName) {
+            showMessage(`"${itemName}" added to your imaginary cart!`, 'success');
+        }
+
+        // Function to generate Home page content
+        function getHomePageContent() {
+            body.className = 'bg-home'; // Change background
+            return `
+                <section class="text-center py-16 bg-white rounded-lg shadow-lg">
+                    <h1 class="text-5xl font-extrabold text-gray-900 leading-tight mb-6">Welcome to The Cozy Corner Cafe!</h1>
+                    <p class="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
+                        Your perfect spot for delightful coffee, fresh pastries, and savory meals.
+                        Experience warmth, comfort, and exceptional flavors in every visit.
+                    </p>
+                    <div class="flex justify-center space-x-4">
+                        <button onclick="loadPage('menu')" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                            Explore Our Menu
+                        </button>
+                        <button onclick="loadPage('about')" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                            Learn About Us
+                        </button>
+                    </div>
+                </section>
+
+                <section class="py-12">
+                    <h2 class="text-4xl font-bold text-center text-gray-900 mb-10">Our Specialties</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
+                            <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimg.freepik.com%2Fpremium-photo%2Ffreshly-brewed-cup-coffee-close-up-shot-generative-ai_9087-113.jpg&f=1&nofb=1&ipt=3ccaa9945410685071859d3c4fca25fa2bec59a1a81b39d3186762e63cdca426" alt="Specialty Coffee" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-2xl font-semibold text-gray-800 mb-2">Artisan Coffee</h3>
+                                <p class="text-gray-600">Sourced from the finest beans, brewed to perfection.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
+                            <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimg.freepik.com%2Fpremium-photo%2Fartisan-pastries-handcrafted-perfection_974629-437.jpg&f=1&nofb=1&ipt=2a7ee75fbbb5003f31343ea672caae48f6799c4504263f456b0493360234e8a6" alt="Handcrafted Pastries" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-2xl font-semibold text-gray-800 mb-2">Handcrafted Pastries</h3>
+                                <p class="text-gray-600">Baked fresh daily, a delight for your sweet tooth.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
+                            <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2F4.bp.blogspot.com%2F-Xz_eHkduHiU%2FUGor0peiEXI%2FAAAAAAAABbE%2Fha9RwzRpLLM%2Fs1600%2FImage.jpg&f=1&nofb=1&ipt=7221a298c9c9e818bcf38bd2610fca447ed54dfb760bdce7f80828b0af62b018" alt="Savory Dishes" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-2xl font-semibold text-gray-800 mb-2">Savory Delights</h3>
+                                <p class="text-gray-600">Wholesome and delicious options for breakfast and lunch.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        // Function to generate Menu page content
+        function getMenuPageContent() {
+            body.className = 'bg-menu'; // Change background
+            let menuHtml = `
+                <section class="py-8 bg-white rounded-lg shadow-lg">
+                    <h2 class="text-4xl font-bold text-center text-gray-900 mb-10">Our Delicious Menu</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
+            `;
+            menuItems.forEach(item => {
+                menuHtml += `
+                    <div class="menu-card bg-gray-50 rounded-lg shadow-md overflow-hidden border border-gray-200">
+                        <img src="${item.image}" onerror="this.onerror=null;this.src='https://placehold.co/300x200/CCCCCC/000000?text=No+Image';" alt="${item.name}" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-2">${item.name}</h3>
+                            <p class="text-gray-600 text-sm mb-4">${item.description}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-orange-600 font-bold text-xl">₹${item.price.toFixed(2)}</span>
+                                <button onclick="handleBuyClick('${item.name}')" class="buy-button bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full shadow-md">
+                                    Buy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            menuHtml += `
+                    </div>
+                </section>
+            `;
+            return menuHtml;
+        }
+
+        // Function to generate About page content
+        function getAboutPageContent() {
+            body.className = 'bg-about'; // Change background
+            return `
+                <section class="py-16 bg-white rounded-lg shadow-lg text-center">
+                    <h2 class="text-4xl font-bold text-gray-900 mb-8">About The Cozy Corner Cafe</h2>
+                    <div class="max-w-4xl mx-auto px-4 text-left text-lg text-gray-700 leading-relaxed">
+                        <p class="mb-6">
+                            Established in 2020, The Cozy Corner Cafe was founded with a simple vision:
+                            to create a warm, inviting space where community thrives over exceptional coffee and delicious food.
+                            We believe in the power of a good cup of coffee to start your day right,
+                            and a wholesome meal to bring people together.
+                        </p>
+                        <p class="mb-6">
+                            Our beans are ethically sourced from sustainable farms around the world,
+                            and roasted locally to ensure the freshest, most aromatic coffee experience.
+                            Our pastries are baked fresh every morning, and our meals are prepared with
+                            the finest local ingredients, reflecting our commitment to quality and taste.
+                        </p>
+                        <p class="mb-6">
+                            Beyond the food and drink, The Cozy Corner is a place for connection.
+                            Whether you're looking for a quiet spot to work, a lively atmosphere for
+                            a chat with friends, or a cozy nook to read a book, you'll find your corner here.
+                            Come and experience the warmth and hospitality that defines us.
+                        </p>
+                        <img src="https://media.istockphoto.com/id/1409730623/photo/business-owner-with-his-staff-at-a-restaurant.jpg?s=612x612&w=0&k=20&c=PHFiQCTQZVaMrkuEPrwiRpVwJrlsJgUwQTCp8o3LiyE=" alt="Our Team" class="w-full rounded-lg shadow-md mt-8 mb-6">
+                        <p class="text-center text-xl font-semibold text-orange-600">
+                            "Our friendly team."
+                        </p>
+                    </div>
+                </section>
+            `;
+        }
+
+        // Function to generate Contact page content
+        function getContactPageContent() {
+            body.className = 'bg-contact'; // Change background
+            return `
+                <section class="py-16 bg-white rounded-lg shadow-lg">
+                    <h2 class="text-4xl font-bold text-center text-gray-900 mb-10">Get in Touch</h2>
+                    <div class="max-w-3xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-2xl font-semibold text-gray-800 mb-2">Visit Us</h3>
+                                <p class="text-gray-700">Cafe Lane, Coffee Town, Kozhikode 678535</p>
+                                <p class="text-gray-700">Open Daily: 7:00 AM - 9:00 PM</p>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-semibold text-gray-800 mb-2">Call Us</h3>
+                                <p class="text-gray-700">+91 0495-456090</p>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-semibold text-gray-800 mb-2">Email Us</h3>
+                                <p class="text-gray-700">info@cozycornercafe.com</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Send Us a Message</h3>
+                            <form class="space-y-4">
+                                <div>
+                                    <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Name</label>
+                                    <input type="text" id="name" name="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-orange-500" placeholder="Your Name">
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                                    <input type="email" id="email" name="email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-orange-500" placeholder="your@example.com">
+                                </div>
+                                <div>
+                                    <label for="message" class="block text-gray-700 text-sm font-bold mb-2">Message</label>
+                                    <textarea id="message" name="message" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-orange-500" placeholder="Your message..."></textarea>
+                                </div>
+                                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                                    Send Message
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        // Function to load page content dynamically
+        function loadPage(pageName) {
+            let content = '';
+            // Remove active class from all links
+            navLinks.forEach(link => link.classList.remove('active'));
+
+            switch (pageName) {
+                case 'home':
+                    content = getHomePageContent();
+                    document.querySelector('[data-page="home"]').classList.add('active');
+                    break;
+                case 'menu':
+                    content = getMenuPageContent();
+                    document.querySelector('[data-page="menu"]').classList.add('active');
+                    break;
+                case 'about':
+                    content = getAboutPageContent();
+                    document.querySelector('[data-page="about"]').classList.add('active');
+                    break;
+                case 'contact':
+                    content = getContactPageContent();
+                    document.querySelector('[data-page="contact"]').classList.add('active');
+                    break;
+                default:
+                    content = getHomePageContent(); // Default to home
+                    document.querySelector('[data-page="home"]').classList.add('active');
+            }
+            pageContentDiv.innerHTML = content;
+            // Scroll to top of the page content
+            pageContentDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Event listeners for navigation links
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent default link behavior
+                const page = e.target.dataset.page;
+                loadPage(page);
+            });
+        });
+
+        // Load the home page content when the page first loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if there's a hash in the URL and load that page, otherwise load home
+            const initialPage = window.location.hash.substring(1) || 'home';
+            loadPage(initialPage);
+        });
+    </script>
+</body>
+</html>
